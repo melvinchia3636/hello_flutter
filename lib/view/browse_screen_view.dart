@@ -113,70 +113,72 @@ class _BrowseWidgetState extends State<BrowseWidget> {
                   final List<GBook> books = snapshot.data!.items;
                   return SliverPadding(
                     padding: const EdgeInsets.all(24),
-                    sliver: SliverGrid(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final book = books.elementAt(index);
-                          return Card(
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                    sliver: SliverAnimatedList(
+                      initialItemCount: books.length,
+                      itemBuilder: (context, index, animation) {
+                        return SizeTransition(
+                          sizeFactor: animation,
+                          child: Card(
+                            margin: const EdgeInsets.only(bottom: 24),
                             child: Padding(
-                              padding: const EdgeInsets.only(
-                                top: 24,
-                                left: 12,
-                                right: 12,
-                                bottom: 12,
-                              ),
-                              child: Column(
-                                children: [
-                                  Expanded(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                children: <Widget>[
+                                  SizedBox(
+                                    width: 80,
                                     child: Image.network(
-                                      book.volumeInfo.imageLinks!
+                                      books[index]
+                                          .volumeInfo
+                                          .imageLinks!
                                           .smallThumbnail,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 12),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: <Widget>[
-                                        Flexible(
-                                          child: Text(book.volumeInfo.title,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .subtitle1),
+                                        Row(
+                                          children: <Widget>[
+                                            Expanded(
+                                              child: Text(
+                                                books[index].volumeInfo.title,
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleLarge,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 16),
+                                            IconButton(
+                                              icon: const Icon(Icons
+                                                  .bookmark_border_outlined),
+                                              onPressed: () {},
+                                            ),
+                                          ],
                                         ),
-                                        const SizedBox(
-                                          width: 8,
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          books[index].volumeInfo.authors![0],
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .subtitle2
+                                              ?.apply(
+                                                  color: Colors.grey.shade600),
                                         ),
-                                        IconButton(
-                                          padding: EdgeInsets.zero,
-                                          constraints: const BoxConstraints(),
-                                          icon: const Icon(
-                                              Icons.bookmark_border_outlined),
-                                          onPressed: () {/* ... */},
-                                        ),
+                                        const SizedBox(height: 8),
                                       ],
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          );
-                        },
-                        childCount: books.length,
-                      ),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 8,
-                        crossAxisSpacing: 8,
-                        childAspectRatio: 0.6,
-                      ),
+                          ),
+                        );
+                      },
                     ),
                   );
                 } else if (snapshot.hasError) {

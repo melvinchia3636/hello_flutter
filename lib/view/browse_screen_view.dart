@@ -1,22 +1,9 @@
-import 'dart:convert';
-
+import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
-import 'package:hello_flutter/models/g_book.dart';
-import 'package:hello_flutter/models/g_books.dart';
-import 'package:http/http.dart' as http;
+import 'package:hello_flutter/api/fetch_books.dart';
+import 'package:hello_flutter/models/book.dart';
+import 'package:hello_flutter/models/book_list.dart';
 import 'package:sliver_header_delegate/sliver_header_delegate.dart';
-
-Future<GBooks>? fetch() async {
-  const String url =
-      'https://www.googleapis.com/books/v1/volumes?q=for+dummies';
-  final response = await http.get(Uri.parse(url));
-
-  if (response.statusCode == 200) {
-    return GBooks.fromJson(json.decode(response.body));
-  } else {
-    throw Exception('Failed to load post');
-  }
-}
 
 class BrowseWidget extends StatefulWidget {
   const BrowseWidget({super.key});
@@ -67,7 +54,7 @@ class _BrowseWidgetState extends State<BrowseWidget> {
                   colorBlendMode: BlendMode.darken,
                   color: Colors.black.withOpacity(0.3),
                 ),
-                collapsedColor: Colors.amber,
+                collapsedColor: Colors.orange,
               ),
               leading: IconButton(
                 onPressed: () {
@@ -87,7 +74,7 @@ class _BrowseWidgetState extends State<BrowseWidget> {
               ],
               children: [
                 FlexibleTextItem(
-                  text: 'Browse Textbooks',
+                  text: 'Senior 2 高二',
                   collapsedStyle: Theme.of(context)
                       .textTheme
                       .headline6
@@ -106,11 +93,11 @@ class _BrowseWidgetState extends State<BrowseWidget> {
               ],
             ),
           ),
-          FutureBuilder<GBooks>(
-              future: fetch(),
+          FutureBuilder<BookList>(
+              future: fetchBooks("sm2"),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  final List<GBook> books = snapshot.data!.items;
+                  final List<Book> books = snapshot.data!.books;
                   return SliverPadding(
                     padding: const EdgeInsets.all(24),
                     sliver: SliverAnimatedList(
@@ -119,7 +106,7 @@ class _BrowseWidgetState extends State<BrowseWidget> {
                         return SizeTransition(
                           sizeFactor: animation,
                           child: Card(
-                            margin: const EdgeInsets.only(bottom: 24),
+                            margin: const EdgeInsets.only(bottom: 8),
                             child: Padding(
                               padding: const EdgeInsets.all(16),
                               child: Row(
@@ -127,10 +114,7 @@ class _BrowseWidgetState extends State<BrowseWidget> {
                                   SizedBox(
                                     width: 80,
                                     child: Image.network(
-                                      books[index]
-                                          .volumeInfo
-                                          .imageLinks!
-                                          .smallThumbnail,
+                                      books[index].thumbnailUrl,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -141,37 +125,48 @@ class _BrowseWidgetState extends State<BrowseWidget> {
                                           CrossAxisAlignment.start,
                                       children: <Widget>[
                                         Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
                                           children: <Widget>[
                                             Expanded(
                                               child: Text(
-                                                books[index].volumeInfo.title,
+                                                books[index].title,
                                                 maxLines: 3,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: Theme.of(context)
                                                     .textTheme
-                                                    .titleLarge,
+                                                    .titleMedium,
                                               ),
-                                            ),
-                                            const SizedBox(width: 16),
-                                            IconButton(
-                                              icon: const Icon(Icons
-                                                  .bookmark_border_outlined),
-                                              onPressed: () {},
                                             ),
                                           ],
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          books[index].volumeInfo.authors![0],
+                                          "${books[index].pageCount} pages",
                                           style: Theme.of(context)
                                               .textTheme
                                               .subtitle2
                                               ?.apply(
                                                   color: Colors.grey.shade600),
                                         ),
-                                        const SizedBox(height: 8),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          filesize(books[index].size),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .subtitle2
+                                              ?.apply(
+                                                  color: Colors.grey.shade600),
+                                        ),
                                       ],
                                     ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.bookmark_border_outlined,
+                                      color: Colors.grey,
+                                    ),
+                                    onPressed: () {},
                                   ),
                                 ],
                               ),

@@ -4,11 +4,11 @@
 
 import 'dart:convert';
 
-Map<String, Map<String, int?>?>? bookSizesFromJson(String str) =>
+Map<String, Map<String, int>?>? bookPageCountFromJson(String str) =>
     Map.from(json.decode(str)!).map((k, v) =>
-        MapEntry<String, Map<String, int?>?>(
-            k, Map.from(v!).map((k, v) => MapEntry<String, int?>(k, v))));
+        MapEntry<String, Map<String, int>?>(
+            k, Map.from(v!).map((k, v) => MapEntry<String, int>(k, v))));
 
-String bookSizesToJson(Map<String, Map<String, int?>?>? data) =>
+String bookPageCountToJson(Map<String, Map<String, int>?>? data) =>
     json.encode(Map.from(data!).map((k, v) => MapEntry<String, dynamic>(
         k, Map.from(v!).map((k, v) => MapEntry<String, dynamic>(k, v)))));

@@ -1,15 +1,13 @@
-import 'dart:convert';
-
-import 'package:hello_flutter/models/book_name_response.dart';
+import 'package:hello_flutter/models/book_page_count.dart';
 import 'package:http/http.dart' as http;
 
-Future<BookNameResponse>? fetchBookNames() async {
+Future<Map<String, Map<String, int>?>?> fetchBookPageCount() async {
   const String url =
-      'https://raw.githubusercontent.com/melvinchia3636/scrapeTextbook/main/src/data/sizes.json';
+      'https://raw.githubusercontent.com/melvinchia3636/scrapeTextbook/main/src/data/pages.json';
   final response = await http.get(Uri.parse(url));
 
   if (response.statusCode == 200) {
-    return BookNameResponse.fromJson(json.decode(response.body));
+    return bookPageCountFromJson(response.body);
   } else {
     throw Exception('Failed to load post');
   }

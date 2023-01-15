@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
 import 'view/browse_screen_view.dart';
@@ -16,12 +17,14 @@ class MyApp extends StatelessWidget {
     SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(statusBarColor: Colors.orange));
 
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.orange,
+    return ProviderScope(
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.orange,
+        ),
+        home: const MainWidget(),
       ),
-      home: const MainWidget(),
     );
   }
 }

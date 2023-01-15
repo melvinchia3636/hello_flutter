@@ -1,48 +1,40 @@
-import 'package:hello_flutter/api/fetch_book_names.dart';
-import 'package:hello_flutter/api/fetch_book_page_count.dart';
-import 'package:hello_flutter/api/fetch_book_sizes.dart';
-import 'package:hello_flutter/models/book.dart';
-import 'package:hello_flutter/models/book_list.dart';
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+import 'package:textbook_library/models/book.dart';
+import 'package:textbook_library/models/book_list.dart';
 
 Future<BookList>? fetchBooks(String grade) async {
-  final Map<String, Map<String, String>?>? bookNames = await fetchBookNames();
-  final Map<String, Map<String, int>?>? bookSizes = await fetchBookSizes();
-  final Map<String, Map<String, int>?>? bookPageCount =
-      await fetchBookPageCount();
+  const String url =
+      'https://raw.githubusercontent.com/melvinchia3636/textbookLibrary/main/src/data/v2_books.json';
+  final response = await http.get(Uri.parse(url));
 
-  final Map<String, String>? targetBookNames = bookNames!.entries
-      .where((element) => element.key == grade)
-      .elementAt(0)
-      .value;
+  late final List<BookList> bookList;
 
-  final Map<String, int>? targetBookSizes = bookSizes!.entries
-      .where((element) => element.key == grade)
-      .elementAt(0)
-      .value;
-
-  final Map<String, int>? targetBookPageCount = bookPageCount!.entries
-      .where((element) => element.key == grade)
-      .elementAt(0)
-      .value;
-
-  final List<Book> books = [];
-
-  for (var i = 0; i < targetBookNames!.length; i++) {
-    final String id = targetBookNames.keys.elementAt(i);
-
-    books.add(Book(
-      id: id,
-      title: targetBookNames.entries.elementAt(i).value,
-      size: targetBookSizes!.entries.elementAt(i).value,
-      pageCount: targetBookPageCount!.entries.elementAt(i).value,
-      downloadUrl:
-          "https://raw.githubusercontent.com/melvinchia3636/textbooks/main/$grade/$id.pdf",
-      thumbnailUrl:
-          "https://raw.githubusercontent.com/melvinchia3636/textbooks/main/images/$grade/$id.jpg",
-    ));
-
-    print(books[i].thumbnailUrl);
+  if (response.statusCode == 200) {
+    final bookListResponse = json.decode(response.body);
+    if (bookListResponse is List) {
+      bookList = bookListResponse
+          .map((e) => BookList.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+  } else {
+    throw Exception('Failed to load post');
   }
 
-  return BookList(grade: grade, books: books);
+  final books =
+      bookList.firstWhere((books) => books.grade == grade).items.map((book) {
+    return Book(
+      title: book.title,
+      id: book.id,
+      pageCount: book.pageCount,
+      size: book.size,
+      thumbnailUrl:
+          "https://raw.githubusercontent.com/melvinchia3636/textbooks/main/images/$grade/${book.id}.jpg",
+      downloadUrl:
+          "https://raw.githubusercontent.com/melvinchia3636/textbooks/main/$grade/${book.id}.pdf",
+    );
+  }).toList();
+
+  return BookList(grade: grade, items: books);
 }

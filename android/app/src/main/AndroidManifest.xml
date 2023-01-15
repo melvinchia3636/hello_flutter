@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.hello_flutter">
+    package="net.thecodeblog.textbook_library">
    <application
-        android:label="hello_flutter"
+        android:label="textbook_library"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -8,12 +8,12 @@ part of 'book_list.dart';
 
 BookList _$BookListFromJson(Map<String, dynamic> json) => BookList(
       grade: json['grade'] as String,
-      books: (json['books'] as List<dynamic>)
+      items: (json['items'] as List<dynamic>)
           .map((e) => Book.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
 Map<String, dynamic> _$BookListToJson(BookList instance) => <String, dynamic>{
       'grade': instance.grade,
-      'books': instance.books,
+      'items': instance.items,
     };

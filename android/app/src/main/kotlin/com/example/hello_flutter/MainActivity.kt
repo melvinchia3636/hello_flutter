@@ -1,4 +1,4 @@
-package com.example.hello_flutter
+package net.thecodeblog.textbook_library
 
 import io.flutter.embedding.android.FlutterActivity
 

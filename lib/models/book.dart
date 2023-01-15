@@ -9,16 +9,18 @@ class Book {
     required this.id,
     required this.pageCount,
     required this.size,
-    required this.thumbnailUrl,
-    required this.downloadUrl,
+    this.thumbnailUrl,
+    this.downloadUrl,
   });
 
   final String id;
+  @JsonKey(name: 'name')
   final String title;
+  @JsonKey(name: 'page')
   final int pageCount;
   final int size;
-  final String thumbnailUrl;
-  final String downloadUrl;
+  String? thumbnailUrl;
+  String? downloadUrl;
 
   factory Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
   Map<String, dynamic> toJson() => _$BookToJson(this);

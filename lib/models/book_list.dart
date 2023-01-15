@@ -1,5 +1,5 @@
-import 'package:hello_flutter/models/book.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:textbook_library/models/book.dart';
 
 part 'book_list.g.dart';
 
@@ -7,11 +7,11 @@ part 'book_list.g.dart';
 class BookList {
   BookList({
     required this.grade,
-    required this.books,
+    required this.items,
   });
 
   final String grade;
-  final List<Book> books;
+  final List<Book> items;
 
   factory BookList.fromJson(Map<String, dynamic> json) =>
       _$BookListFromJson(json);

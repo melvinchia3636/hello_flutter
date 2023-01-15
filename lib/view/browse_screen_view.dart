@@ -1,205 +1,218 @@
-import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
-import 'package:hello_flutter/api/fetch_books.dart';
-import 'package:hello_flutter/models/book.dart';
-import 'package:hello_flutter/models/book_list.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sliver_header_delegate/sliver_header_delegate.dart';
+import 'package:textbook_library/components/book_card.dart';
+import 'package:textbook_library/components/placeholder.dart';
+import 'package:textbook_library/providers/books_provider.dart';
 
-class BrowseWidget extends StatefulWidget {
+class BrowseWidget extends ConsumerStatefulWidget {
   const BrowseWidget({super.key});
 
   @override
-  State<BrowseWidget> createState() => _BrowseWidgetState();
+  ConsumerState<BrowseWidget> createState() => _BrowseWidgetState();
 }
 
-class _BrowseWidgetState extends State<BrowseWidget> {
+class DrawerItem {
+  const DrawerItem(
+      {required this.textEN, required this.textCH, required this.id});
+
+  final String id;
+  final String textEN;
+  final String textCH;
+}
+
+class _BrowseWidgetState extends ConsumerState<BrowseWidget> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late final _scrollController;
+
+  final drawerItems = [
+    const DrawerItem(id: "jm1", textEN: "Junior 1", textCH: "初一"),
+    const DrawerItem(id: "jm2", textEN: "Junior 2", textCH: "初二"),
+    const DrawerItem(id: "jm3", textEN: "Junior 3", textCH: "初三"),
+    const DrawerItem(id: "sm1", textEN: "Senior 1", textCH: "高一"),
+    const DrawerItem(id: "sm2", textEN: "Senior 2", textCH: "高二"),
+    const DrawerItem(id: "sm3", textEN: "Senior 3", textCH: "高三"),
+  ];
+
+  void _onSelectedGrade(String grade) {
+    ref.read(selectedGradeProvider.notifier).state = grade;
+    Navigator.of(context).pop();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final selectedGrade = ref.watch(selectedGradeProvider);
+    final books = ref.watch(booksProvider);
+
+    ref.listen(selectedGradeProvider, (_, __) {
+      _scrollController.animateTo(
+        0.0,
+        duration: const Duration(seconds: 1),
+        curve: Curves.fastOutSlowIn,
+      );
+    });
+
+    final drawerOptions = drawerItems.map((d) {
+      return ListTile(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(6)),
+        ),
+        title: Text("${d.textEN}   ${d.textCH}",
+            style: const TextStyle(fontSize: 16)),
+        selected: selectedGrade == d.id,
+        onTap: () => _onSelectedGrade(d.id),
+        selectedColor: Colors.orange,
+        selectedTileColor: Colors.orange[100],
+      );
+    }).toList();
+
     return Scaffold(
       key: _scaffoldKey,
       drawer: Drawer(
-        child: ListView(
-          // Important: Remove any padding from the ListView.
-          children: [
-            ListTile(
-              title: const Text('Item 1'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
-            ListTile(
-              title: const Text('Item 2'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
+        child: Column(
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+                accountName: Text(
+                  drawerItems
+                      .firstWhere((element) => element.id == selectedGrade)
+                      .textEN,
+                  style: const TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
+                accountEmail: Text(
+                  drawerItems
+                      .firstWhere((element) => element.id == selectedGrade)
+                      .textCH,
+                  style: const TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                )),
+            Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(children: drawerOptions))
           ],
         ),
       ),
-      body: CustomScrollView(
-        slivers: <Widget>[
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: FlexibleHeaderDelegate(
-              statusBarHeight: MediaQuery.of(context).padding.top,
-              expandedHeight: 240,
-              background: MutableBackground(
-                expandedWidget: Image.asset(
-                  'assets/lib.jpg',
-                  fit: BoxFit.cover,
-                  colorBlendMode: BlendMode.darken,
-                  color: Colors.black.withOpacity(0.3),
+      body: RefreshIndicator(
+        onRefresh: () {
+          ref.invalidate(booksProvider);
+          return ref.read(booksProvider.future);
+        },
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: <Widget>[
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: FlexibleHeaderDelegate(
+                statusBarHeight: MediaQuery.of(context).padding.top,
+                expandedHeight: 240,
+                background: MutableBackground(
+                  expandedWidget: Image.asset(
+                    'assets/lib.jpg',
+                    fit: BoxFit.cover,
+                    colorBlendMode: BlendMode.darken,
+                    color: Colors.black.withOpacity(0.3),
+                  ),
+                  collapsedColor: Colors.orange,
                 ),
-                collapsedColor: Colors.orange,
+                leading: IconButton(
+                  onPressed: () {
+                    _scaffoldKey.currentState!.openDrawer();
+                  },
+                  icon: const Icon(
+                    Icons.menu,
+                    color: Colors.white,
+                  ),
+                ),
+                actions: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.search,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {},
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.more_vert,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {},
+                  ),
+                ],
+                children: [
+                  FlexibleTextItem(
+                    text:
+                        '${drawerItems.firstWhere((element) => element.id == selectedGrade).textEN} ${drawerItems.firstWhere((element) => element.id == selectedGrade).textCH}',
+                    collapsedStyle: Theme.of(context)
+                        .textTheme
+                        .headline6
+                        ?.copyWith(
+                            color: Colors.white, fontWeight: FontWeight.w500),
+                    expandedStyle: Theme.of(context)
+                        .textTheme
+                        .headline4
+                        ?.copyWith(
+                            color: Colors.white, fontWeight: FontWeight.w500),
+                    expandedAlignment: Alignment.bottomLeft,
+                    collapsedAlignment: Alignment.center,
+                    expandedPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 16),
+                  ),
+                ],
               ),
-              leading: IconButton(
-                onPressed: () {
-                  _scaffoldKey.currentState!.openDrawer();
-                },
-                icon: const Icon(Icons.menu),
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: () {},
-                ),
-              ],
-              children: [
-                FlexibleTextItem(
-                  text: 'Senior 2 高二',
-                  collapsedStyle: Theme.of(context)
-                      .textTheme
-                      .headline6
-                      ?.copyWith(
-                          color: Colors.white, fontWeight: FontWeight.w500),
-                  expandedStyle: Theme.of(context)
-                      .textTheme
-                      .headline4
-                      ?.copyWith(
-                          color: Colors.white, fontWeight: FontWeight.w500),
-                  expandedAlignment: Alignment.bottomLeft,
-                  collapsedAlignment: Alignment.center,
-                  expandedPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                ),
-              ],
             ),
-          ),
-          FutureBuilder<BookList>(
-              future: fetchBooks("sm2"),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final List<Book> books = snapshot.data!.books;
-                  return SliverPadding(
-                    padding: const EdgeInsets.all(24),
-                    sliver: SliverAnimatedList(
-                      initialItemCount: books.length,
-                      itemBuilder: (context, index, animation) {
-                        return SizeTransition(
-                          sizeFactor: animation,
-                          child: Card(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                children: <Widget>[
-                                  SizedBox(
-                                    width: 80,
-                                    child: Image.network(
-                                      books[index].thumbnailUrl,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: <Widget>[
-                                            Expanded(
-                                              child: Text(
-                                                books[index].title,
-                                                maxLines: 3,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleMedium,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          "${books[index].pageCount} pages",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .subtitle2
-                                              ?.apply(
-                                                  color: Colors.grey.shade600),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          filesize(books[index].size),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .subtitle2
-                                              ?.apply(
-                                                  color: Colors.grey.shade600),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.bookmark_border_outlined,
-                                      color: Colors.grey,
-                                    ),
-                                    onPressed: () {},
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                } else if (snapshot.hasError) {
-                  return SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        return const ListTile(
-                          title: Text('Error'),
-                        );
-                      },
-                      childCount: 1,
-                    ),
-                  );
-                }
-                return SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return const ListTile(
-                        title: Text('Loading'),
+            books.when(
+              data: (data) {
+                final books = data?.items ?? [];
+
+                return SliverPadding(
+                  padding: const EdgeInsets.all(24),
+                  sliver: SliverAnimatedList(
+                    initialItemCount: books.length,
+                    itemBuilder: (context, index, animation) {
+                      return SizeTransition(
+                        sizeFactor: animation,
+                        child: BookCard(book: books[index]),
                       );
                     },
-                    childCount: 1,
                   ),
                 );
-              })
-        ],
+              },
+              loading: () => SliverPadding(
+                padding: const EdgeInsets.all(24),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => MyLovelyPlaceholder(),
+                    childCount: 5,
+                  ),
+                ),
+              ),
+              error: (e, s) => const SliverFillRemaining(
+                child: Center(
+                  child: Text('Error'),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

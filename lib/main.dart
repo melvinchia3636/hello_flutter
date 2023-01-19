@@ -1,16 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
-
-import 'view/browse_screen_view.dart';
+import 'package:textbook_library/models/book.dart';
+import 'package:textbook_library/view/book_preview_view.dart';
+import 'package:textbook_library/view/browse_screen_view.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MainWindow());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+final GoRouter _router = GoRouter(
+  initialLocation: '/',
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const MainWidget(),
+    ),
+    GoRoute(
+        path: '/preview/:grade/:id',
+        builder: (context, state) {
+          return BookPreviewScreen(book: state.extra as Book?);
+        }),
+  ],
+);
+
+class MainWindow extends StatelessWidget {
+  const MainWindow({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,12 +35,16 @@ class MyApp extends StatelessWidget {
         const SystemUiOverlayStyle(statusBarColor: Colors.orange));
 
     return ProviderScope(
-      child: MaterialApp(
-        title: 'Flutter Demo',
+      child: MaterialApp.router(
+        routerConfig: _router,
+        title: 'Textbook Library',
         theme: ThemeData(
           primarySwatch: Colors.orange,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          appBarTheme: const AppBarTheme(
+            foregroundColor: Colors.white,
+          ),
         ),
-        home: const MainWidget(),
       ),
     );
   }
@@ -44,7 +65,7 @@ class _MainWidgetState extends State<MainWidget> {
       "https://www.googleapis.com/books/v1/volumes?q=isbn:9780133594140";
 
   List<Widget> widgets = [
-    const BrowseWidget(),
+    const BrowseScreen(),
     const Text('Page 2'),
   ];
 
@@ -72,6 +93,7 @@ class _MainWidgetState extends State<MainWidget> {
     return Scaffold(
       body: SizedBox.expand(
         child: PageView(
+          physics: const NeverScrollableScrollPhysics(),
           controller: _pageController,
           onPageChanged: (index) {
             setState(() => _pageIndex = index);

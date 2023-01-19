@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sliver_header_delegate/sliver_header_delegate.dart';
-import 'package:textbook_library/components/book_card.dart';
-import 'package:textbook_library/components/placeholder.dart';
+import 'package:textbook_library/components/browse_screen/book_card.dart';
+import 'package:textbook_library/components/browse_screen/placeholder.dart';
 import 'package:textbook_library/providers/books_provider.dart';
 
-class BrowseWidget extends ConsumerStatefulWidget {
-  const BrowseWidget({super.key});
+class BrowseScreen extends ConsumerStatefulWidget {
+  const BrowseScreen({super.key});
 
   @override
-  ConsumerState<BrowseWidget> createState() => _BrowseWidgetState();
+  ConsumerState<BrowseScreen> createState() => _BrowseWidgetState();
 }
 
 class DrawerItem {
@@ -21,7 +21,7 @@ class DrawerItem {
   final String textCH;
 }
 
-class _BrowseWidgetState extends ConsumerState<BrowseWidget> {
+class _BrowseWidgetState extends ConsumerState<BrowseScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   late final _scrollController;
 
@@ -55,6 +55,7 @@ class _BrowseWidgetState extends ConsumerState<BrowseWidget> {
   Widget build(BuildContext context) {
     final selectedGrade = ref.watch(selectedGradeProvider);
     final books = ref.watch(booksProvider);
+    final textStyle = Theme.of(context).textTheme;
 
     ref.listen(selectedGradeProvider, (_, __) {
       _scrollController.animateTo(
@@ -84,26 +85,27 @@ class _BrowseWidgetState extends ConsumerState<BrowseWidget> {
         child: Column(
           children: <Widget>[
             UserAccountsDrawerHeader(
-                accountName: Text(
-                  drawerItems
-                      .firstWhere((element) => element.id == selectedGrade)
-                      .textEN,
-                  style: const TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
+              accountName: Text(
+                drawerItems
+                    .firstWhere((element) => element.id == selectedGrade)
+                    .textEN,
+                style: const TextStyle(
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
                 ),
-                accountEmail: Text(
-                  drawerItems
-                      .firstWhere((element) => element.id == selectedGrade)
-                      .textCH,
-                  style: const TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                )),
+              ),
+              accountEmail: Text(
+                drawerItems
+                    .firstWhere((element) => element.id == selectedGrade)
+                    .textCH,
+                style: const TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
+              ),
+            ),
             Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(children: drawerOptions))
@@ -136,24 +138,15 @@ class _BrowseWidgetState extends ConsumerState<BrowseWidget> {
                   onPressed: () {
                     _scaffoldKey.currentState!.openDrawer();
                   },
-                  icon: const Icon(
-                    Icons.menu,
-                    color: Colors.white,
-                  ),
+                  icon: const Icon(Icons.menu),
                 ),
                 actions: [
                   IconButton(
-                    icon: const Icon(
-                      Icons.search,
-                      color: Colors.white,
-                    ),
+                    icon: const Icon(Icons.search),
                     onPressed: () {},
                   ),
                   IconButton(
-                    icon: const Icon(
-                      Icons.more_vert,
-                      color: Colors.white,
-                    ),
+                    icon: const Icon(Icons.more_vert),
                     onPressed: () {},
                   ),
                 ],
@@ -161,16 +154,14 @@ class _BrowseWidgetState extends ConsumerState<BrowseWidget> {
                   FlexibleTextItem(
                     text:
                         '${drawerItems.firstWhere((element) => element.id == selectedGrade).textEN} ${drawerItems.firstWhere((element) => element.id == selectedGrade).textCH}',
-                    collapsedStyle: Theme.of(context)
-                        .textTheme
-                        .headline6
-                        ?.copyWith(
-                            color: Colors.white, fontWeight: FontWeight.w500),
-                    expandedStyle: Theme.of(context)
-                        .textTheme
-                        .headline4
-                        ?.copyWith(
-                            color: Colors.white, fontWeight: FontWeight.w500),
+                    collapsedStyle: textStyle.headline6?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    expandedStyle: textStyle.headline4?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
                     expandedAlignment: Alignment.bottomLeft,
                     collapsedAlignment: Alignment.center,
                     expandedPadding: const EdgeInsets.symmetric(
@@ -190,7 +181,8 @@ class _BrowseWidgetState extends ConsumerState<BrowseWidget> {
                     itemBuilder: (context, index, animation) {
                       return SizeTransition(
                         sizeFactor: animation,
-                        child: BookCard(book: books[index]),
+                        child:
+                            BookCard(book: books[index], grade: selectedGrade),
                       );
                     },
                   ),

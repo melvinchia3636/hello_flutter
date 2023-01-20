@@ -31,11 +31,14 @@ class _BookPreviewState extends State<BookPreviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Book Preview'),
+        title: const Text('Book Preview',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+            )),
       ),
       body: Center(
         child: _isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : PDFViewer(
                 document: doc,
                 zoomSteps: 1,

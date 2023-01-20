@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sliver_header_delegate/sliver_header_delegate.dart';
 import 'package:textbook_library/components/browse_screen/book_card.dart';
 import 'package:textbook_library/components/browse_screen/placeholder.dart';
@@ -90,8 +91,8 @@ class _BrowseWidgetState extends ConsumerState<BrowseScreen> {
                     .firstWhere((element) => element.id == selectedGrade)
                     .textEN,
                 style: const TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 26.0,
+                  fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),
@@ -101,7 +102,7 @@ class _BrowseWidgetState extends ConsumerState<BrowseScreen> {
                     .textCH,
                 style: const TextStyle(
                   fontSize: 18.0,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),
@@ -143,7 +144,9 @@ class _BrowseWidgetState extends ConsumerState<BrowseScreen> {
                 actions: [
                   IconButton(
                     icon: const Icon(Icons.search),
-                    onPressed: () {},
+                    onPressed: () {
+                      context.push('/search');
+                    },
                   ),
                   IconButton(
                     icon: const Icon(Icons.more_vert),
@@ -156,11 +159,11 @@ class _BrowseWidgetState extends ConsumerState<BrowseScreen> {
                         '${drawerItems.firstWhere((element) => element.id == selectedGrade).textEN} ${drawerItems.firstWhere((element) => element.id == selectedGrade).textCH}',
                     collapsedStyle: textStyle.headline6?.copyWith(
                       color: Colors.white,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                     ),
                     expandedStyle: textStyle.headline4?.copyWith(
                       color: Colors.white,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                     ),
                     expandedAlignment: Alignment.bottomLeft,
                     collapsedAlignment: Alignment.center,
@@ -181,8 +184,7 @@ class _BrowseWidgetState extends ConsumerState<BrowseScreen> {
                     itemBuilder: (context, index, animation) {
                       return SizeTransition(
                         sizeFactor: animation,
-                        child:
-                            BookCard(book: books[index], grade: selectedGrade),
+                        child: BookCard(book: books[index]),
                       );
                     },
                   ),

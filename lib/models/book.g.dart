@@ -11,6 +11,7 @@ Book _$BookFromJson(Map<String, dynamic> json) => Book(
       id: json['id'] as String,
       pageCount: json['page'] as int,
       size: json['size'] as int,
+      grade: json['grade'] as String?,
       thumbnailUrl: json['thumbnailUrl'] as String?,
       downloadUrl: json['downloadUrl'] as String?,
     );
@@ -20,6 +21,7 @@ Map<String, dynamic> _$BookToJson(Book instance) => <String, dynamic>{
       'name': instance.title,
       'page': instance.pageCount,
       'size': instance.size,
+      'grade': instance.grade,
       'thumbnailUrl': instance.thumbnailUrl,
       'downloadUrl': instance.downloadUrl,
     };

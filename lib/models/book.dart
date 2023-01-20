@@ -9,6 +9,7 @@ class Book {
     required this.id,
     required this.pageCount,
     required this.size,
+    this.grade,
     this.thumbnailUrl,
     this.downloadUrl,
   });
@@ -19,6 +20,7 @@ class Book {
   @JsonKey(name: 'page')
   final int pageCount;
   final int size;
+  String? grade;
   String? thumbnailUrl;
   String? downloadUrl;
 

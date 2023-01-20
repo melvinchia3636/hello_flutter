@@ -7,17 +7,15 @@ class BookCard extends StatelessWidget {
   const BookCard({
     Key? key,
     required this.book,
-    required this.grade,
   }) : super(key: key);
 
   final Book book;
-  final String grade;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        context.push('/preview/$grade/${book.id}', extra: book);
+        context.push('/preview/${book.grade}/${book.id}', extra: book);
       },
       child: Card(
         margin: const EdgeInsets.only(bottom: 8),

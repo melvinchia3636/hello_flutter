@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:textbook_library/models/book.dart';
 import 'package:textbook_library/view/book_preview_view.dart';
-import 'package:textbook_library/view/browse_screen_view.dart';
+import 'package:textbook_library/view/browse_view.dart';
+import 'package:textbook_library/view/search_view.dart';
 
 void main() {
   runApp(const MainWindow());
@@ -22,6 +24,11 @@ final GoRouter _router = GoRouter(
         path: '/preview/:grade/:id',
         builder: (context, state) {
           return BookPreviewScreen(book: state.extra as Book?);
+        }),
+    GoRoute(
+        path: '/search',
+        builder: (context, state) {
+          return const SearchScreen();
         }),
   ],
 );
@@ -44,6 +51,7 @@ class MainWindow extends StatelessWidget {
           appBarTheme: const AppBarTheme(
             foregroundColor: Colors.white,
           ),
+          fontFamily: GoogleFonts.inter().fontFamily,
         ),
       ),
     );
